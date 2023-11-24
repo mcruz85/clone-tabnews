@@ -1,4 +1,4 @@
-import database from "/infra/database.js";
+import database from "infra/database.js";
 
 async function status(req, res) {
   console.log("> [api/status] req.method", req.method);
