@@ -6,10 +6,15 @@ async function query(queryObject) {
     connectionString: process.env.DATABASE_URL,
   });
 
-  await client.connect();
-  const result = await client.query(queryObject);
-  await client.end();
-  return result;
+  try {
+    await client.connect();
+    return await client.query(queryObject);
+  } catch (error) {
+    console.error("> [database] error", error);
+    throw error;
+  } finally {
+    await client.end();
+  }
 }
 
 export default {
