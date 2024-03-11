@@ -5,7 +5,6 @@ describe("GET /api/v1/status", () => {
   beforeAll(async () => {
     response = await fetch("http://localhost:3020/api/v1/status");
     payload = await response.json();
-    console.log(payload);
   });
 
   test("should return staus 200", () => {
@@ -26,7 +25,6 @@ describe("Verify GET /api/v1/status database payload", () => {
   beforeAll(async () => {
     response = await fetch("http://localhost:3020/api/v1/status");
     database = (await response.json()).database;
-    console.log(database);
   });
 
   test("should return a valid postgres version", () => {
