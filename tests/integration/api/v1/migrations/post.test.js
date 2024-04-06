@@ -24,7 +24,6 @@ describe("POST /api/v1/migrations", () => {
     expect(response.status).toBe(201);
     expect(Array.isArray(responseBody)).toBe(true);
     expect(responseBody.length).toBeGreaterThan(0);
-    console.log(responseBody);
 
     const secondResponse = await fetch(
       "http://localhost:3020/api/v1/migrations",
