@@ -33,7 +33,6 @@ describe("POST /api/v1/migrations", () => {
     );
 
     const secondResponseBody = await secondResponse.json();
-    console.log(secondResponseBody);
     expect(secondResponse.status).toBe(200);
     expect(Array.isArray(secondResponseBody)).toBe(true);
     expect(secondResponseBody.length).toBe(0);
