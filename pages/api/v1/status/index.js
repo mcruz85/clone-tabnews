@@ -1,6 +1,14 @@
  import database from "infra/database.js";
 
 async function status(req, res) {
+
+  const allowedMethods = ["GET"];
+  if (!allowedMethods.includes(req.method)) {
+    return res.status(405).json({
+      error: `Method "${req.method}" not allowed`
+    })
+  }
+
   const updateAt = new Date().toISOString();
   const databaseVersionResult = await database.query("SHOW SERVER_VERSION;");
   const databaseMaxConnectionsResult = await database.query(
