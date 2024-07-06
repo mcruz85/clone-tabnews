@@ -4,7 +4,6 @@ beforeAll(async () => {
   await orchestrator.waitForAppToStart();
 });
 
-
 describe("GET /api/v1/status", () => {
   var response;
   var payload;

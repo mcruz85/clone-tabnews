@@ -23,7 +23,7 @@ describe("/api/v1/migrations", () => {
     const notAllowedMethods = ["HEAD", "PUT", "DELETE", "OPTIONS", "PATCH"];
     for (const method of notAllowedMethods) {
       const status = await testMethod(method);
-  
+
       expect(status).toBe(405);
     }
   });
