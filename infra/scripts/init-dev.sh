@@ -5,6 +5,6 @@ function cleanup {
     exit 0
 }
 
-trap cleanup INT
+trap cleanup EXIT INT
 
 npm run services:up && npm run wait-for-postgres && npm run migration:up && next dev --port 3020
