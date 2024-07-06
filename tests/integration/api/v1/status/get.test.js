@@ -1,3 +1,10 @@
+import orchestrator from "tests/orchestrator.js";
+
+beforeAll(async () => {
+  await orchestrator.waitForAppToStart();
+});
+
+
 describe("GET /api/v1/status", () => {
   var response;
   var payload;
@@ -13,7 +20,6 @@ describe("GET /api/v1/status", () => {
 
   test("should return valid updated_at as ISO string", () => {
     const parsedUpdateAt = new Date(payload.update_at).toISOString();
-    console.log(parsedUpdateAt);
     expect(parsedUpdateAt).toBe(payload.update_at);
   });
 });
@@ -23,6 +29,7 @@ describe("Verify GET /api/v1/status database payload", () => {
   var database;
 
   beforeAll(async () => {
+    await orchestrator.waitForAppToStart();
     response = await fetch("http://localhost:3020/api/v1/status");
     database = (await response.json()).database;
   });
@@ -30,6 +37,7 @@ describe("Verify GET /api/v1/status database payload", () => {
   test("should return a valid postgres version", () => {
     expect(database.version).toBeDefined();
     expect(typeof database.version).toBe("string");
+    expect(database.version).toBe("16.3");
   });
 
   test("should return a valid max connections", () => {
