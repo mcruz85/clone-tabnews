@@ -6,19 +6,19 @@ export default async function migrations(req, res) {
   const allowedMethods = ["GET", "POST"];
   if (!allowedMethods.includes(req.method)) {
     return res.status(405).json({
-      error: `Method ${req.method} not allowed`
-    })
+      error: `Method ${req.method} not allowed`,
+    });
   }
 
   let dbClient;
   try {
-    dbClient = await database.getNewClient();    
+    dbClient = await database.getNewClient();
     const dryRun = req.method === "GET" ? true : false;
     const migrationsOptions = getMigrationOptions(dbClient, dryRun);
     const migratedMigrations = await migrationRunner(migrationsOptions);
-    const status = !dryRun && migratedMigrations.length > 0 ? 201 : 200;   
-    return res.status(status).json(migratedMigrations);          
-  } catch(error) {
+    const status = !dryRun && migratedMigrations.length > 0 ? 201 : 200;
+    return res.status(status).json(migratedMigrations);
+  } catch (error) {
     console.error(error);
     throw error;
   } finally {
