@@ -4,6 +4,7 @@ on: [pull_request]
 
 jobs:
   prettier:
+    name: Prettier
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,3 +19,20 @@ jobs:
 
       - name: Run linting with Prettier
         run: npm run lint:prettier:check
+
+  eslint:
+    name: ESlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js lts/hydrogen
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/hydrogen"
+
+      - name: Install dependencies with npm ci
+        run: npm ci
+
+      - name: Run linting with eslint
+        run: npm run lint:eslint:check
