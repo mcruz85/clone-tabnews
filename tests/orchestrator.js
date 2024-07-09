@@ -21,6 +21,8 @@ async function waitForAppToStart() {
   }
 }
 
-export default {
+const orchestrator = {
   waitForAppToStart,
 };
+
+export default orchestrator;

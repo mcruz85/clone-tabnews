@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import database from "infra/database.js";
 
 async function status(req, res) {
