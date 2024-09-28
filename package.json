@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "./infra/scripts/init-dev.sh",
-    "services:up": "docker-compose --file=infra/compose.yaml up -d",
-    "services:stop": "docker-compose --file=infra/compose.yaml stop",
-    "services:down": "docker-compose --file=infra/compose.yaml down",
+    "services:up": "docker-compose --file=./infra/compose.yaml up -d",
+    "services:stop": "docker-compose --file=./infra/compose.yaml stop",
+    "services:down": "docker-compose --file=./infra/compose.yaml down",
     "lint:eslint:check": "next lint --dir .",
     "lint:prettier:check": "prettier --check .",
     "lint:prettier:fix": "prettier --write .",
