@@ -33,7 +33,7 @@ describe("POST /api/v1/migrations", () => {
       "http://localhost:3020/api/v1/migrations",
       {
         method: "POST",
-      }
+      },
     );
 
     const secondResponseBody = await secondResponse.json();

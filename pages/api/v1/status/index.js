@@ -12,7 +12,7 @@ async function status(req, res) {
   const updateAt = new Date().toISOString();
   const databaseVersionResult = await database.query("SHOW SERVER_VERSION;");
   const databaseMaxConnectionsResult = await database.query(
-    "SHOW MAX_CONNECTIONS;"
+    "SHOW MAX_CONNECTIONS;",
   );
   const databaseName = process.env.POSTGRES_DB || "db_local";
 
@@ -23,10 +23,10 @@ async function status(req, res) {
 
   const postgresVersionValue = databaseVersionResult.rows[0].server_version;
   const maxConnectionsValue = parseInt(
-    databaseMaxConnectionsResult.rows[0].max_connections
+    databaseMaxConnectionsResult.rows[0].max_connections,
   );
   const openedConnectionsValue = parseInt(
-    databaseOpenedConnectionsResult.rows[0].count
+    databaseOpenedConnectionsResult.rows[0].count,
   );
 
   const databaseInfo = {
