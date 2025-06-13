@@ -1,52 +1,43 @@
 /* eslint-disable no-undef */
 import database from "infra/database.js";
-import { InternalServerError } from "infra/errors";
+import controller from "infra/shared/controller";
+import { createRouter } from "next-connect";
 
-async function status(req, res) {
-  try {
-    const allowedMethods = ["GET"];
-    if (!allowedMethods.includes(req.method)) {
-      return res.status(405).json({
-        error: `Method "${req.method}" not allowed`,
-      });
-    }
+const router = createRouter();
 
-    const updateAt = new Date().toISOString();
-    const databaseVersionResult = await database.query("SHOW SERVER_VERSION;");
-    const databaseMaxConnectionsResult = await database.query(
-      "SHOW MAX_CONNECTIONS;",
-    );
-    const databaseName = process.env.POSTGRES_DB || "db_local";
+router.get(getHandler);
 
-    const databaseOpenedConnectionsResult = await database.query({
-      text: `SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname=$1;`,
-      values: [databaseName],
-    });
+export default router.handler(controller.errorHandlers);
 
-    const postgresVersionValue = databaseVersionResult.rows[0].server_version;
-    const maxConnectionsValue = parseInt(
-      databaseMaxConnectionsResult.rows[0].max_connections,
-    );
-    const openedConnectionsValue = parseInt(
-      databaseOpenedConnectionsResult.rows[0].count,
-    );
+async function getHandler(req, res) {
+  const updateAt = new Date().toISOString();
+  const databaseVersionResult = await database.query("SHOW SERVER_VERSION;");
+  const databaseMaxConnectionsResult = await database.query(
+    "SHOW MAX_CONNECTIONS;",
+  );
+  const databaseName = process.env.POSTGRES_DB || "db_local";
 
-    const databaseInfo = {
-      version: postgresVersionValue,
-      max_connections: maxConnectionsValue,
-      opened_connections: openedConnectionsValue,
-    };
+  const databaseOpenedConnectionsResult = await database.query({
+    text: `SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname=$1;`,
+    values: [databaseName],
+  });
 
-    res.status(200).json({
-      update_at: updateAt,
-      database: databaseInfo,
-    });
-  } catch (error) {
-    const publicErrorObject = new InternalServerError({ cause: error });
-    console.error("> [status] error", publicErrorObject);
+  const postgresVersionValue = databaseVersionResult.rows[0].server_version;
+  const maxConnectionsValue = parseInt(
+    databaseMaxConnectionsResult.rows[0].max_connections,
+  );
+  const openedConnectionsValue = parseInt(
+    databaseOpenedConnectionsResult.rows[0].count,
+  );
 
-    res.status(500).json(publicErrorObject);
-  }
+  const databaseInfo = {
+    version: postgresVersionValue,
+    max_connections: maxConnectionsValue,
+    opened_connections: openedConnectionsValue,
+  };
+
+  res.status(200).json({
+    update_at: updateAt,
+    database: databaseInfo,
+  });
 }
-
-export default status;

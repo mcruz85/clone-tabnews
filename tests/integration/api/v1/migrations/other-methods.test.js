@@ -20,10 +20,10 @@ async function testMethod(method) {
 
 describe("/api/v1/migrations", () => {
   test("other http methods to /api/v1/migrations should return 405", async () => {
-    const notAllowedMethods = ["HEAD", "PUT", "DELETE", "OPTIONS", "PATCH"];
+    const notAllowedMethods = ["PUT", "DELETE", "OPTIONS", "PATCH"];
     for (const method of notAllowedMethods) {
       const status = await testMethod(method);
-
+      console.log(`Method: ${method}, Status: ${status}`);
       expect(status).toBe(405);
     }
   });

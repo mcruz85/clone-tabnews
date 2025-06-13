@@ -1,4 +1,5 @@
 import { Client } from "pg";
+import { ServiceError } from "./errors.js";
 
 async function query(queryObject) {
   let client;
@@ -7,8 +8,15 @@ async function query(queryObject) {
     client = await getNewClient();
     return await client.query(queryObject);
   } catch (error) {
-    console.error("> [database] error", error);
-    throw error;
+    console.error("> [ERROR] database query:", {
+      message: error.message,
+      stack: error.stack,
+    });
+    const serviceErrorObject = new ServiceError({
+      cause: error,
+      message: "Database service is unavailable",
+    });
+    throw serviceErrorObject;
   } finally {
     await client?.end();
   }
