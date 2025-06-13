@@ -1,14 +1,15 @@
 /* eslint-disable no-undef */
 import database from "infra/database.js";
+import controller from "infra/shared/controller";
+import { createRouter } from "next-connect";
 
-async function status(req, res) {
-  const allowedMethods = ["GET"];
-  if (!allowedMethods.includes(req.method)) {
-    return res.status(405).json({
-      error: `Method "${req.method}" not allowed`,
-    });
-  }
+const router = createRouter();
 
+router.get(getHandler);
+
+export default router.handler(controller.errorHandlers);
+
+async function getHandler(req, res) {
   const updateAt = new Date().toISOString();
   const databaseVersionResult = await database.query("SHOW SERVER_VERSION;");
   const databaseMaxConnectionsResult = await database.query(
@@ -40,5 +41,3 @@ async function status(req, res) {
     database: databaseInfo,
   });
 }
-
-export default status;
