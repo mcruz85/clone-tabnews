@@ -9,18 +9,7 @@ const defaultMigrationOptions = {
   dir: resolve(process.env.MIGRATIONS_DIR || "infra/migrations"),
 };
 
-const DRY_RUN = true;
-const EXECUTE_MIGRATION = false;
-
-async function listPendingMigrations() {
-  return runMigrations(DRY_RUN);
-}
-
-async function runPendingMigrations() {
-  return runMigrations(EXECUTE_MIGRATION);
-}
-
-async function runMigrations(dryRun) {
+async function runMigrations({ dryRun } = { dryRun: true }) {
   let dbClient;
   try {
     dbClient = await database.getNewClient();
@@ -45,8 +34,8 @@ async function runMigrations(dryRun) {
 }
 
 const migrator = {
-  runPendingMigrations,
-  listPendingMigrations,
+  runPendingMigrations: () => runMigrations({ dryRun: false }),
+  listPendingMigrations: () => runMigrations({ dryRun: true }),
 };
 
 export default migrator;
