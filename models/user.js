@@ -1,5 +1,5 @@
 import database from "infra/database.js";
-import { ValidationError } from "infra/errors.js";
+import { NotFoundError, ValidationError } from "infra/errors.js";
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -67,6 +67,34 @@ async function validateUniqueUsername(username) {
   }
 }
 
-const user = { create };
+async function findOneByUsername(username) {
+  const userFound = await runSelectQuery(username);
+  return userFound;
+
+  async function runSelectQuery(username) {
+    const sql = `
+      SELECT id, username, email, created_at, updated_at
+      FROM users
+      WHERE LOWER(username) = LOWER($1)
+      LIMIT 1
+    `;
+    const result = await database.query({ text: sql, values: [username] });
+
+    if (result.rowCount === 0) {
+      throw new NotFoundError({
+        message: "User not found",
+        action: "Please check the username and try again",
+        status_code: 404,
+      });
+    }
+
+    return result.rows[0];
+  }
+}
+
+const user = {
+  create,
+  findOneByUsername,
+};
 
 export default user;
