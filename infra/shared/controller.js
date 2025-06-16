@@ -1,6 +1,18 @@
-const { MethodNotAllowedError, InternalServerError } = require("infra/errors");
+const {
+  MethodNotAllowedError,
+  InternalServerError,
+  ValidationError,
+} = require("infra/errors");
 
 function onErrorHandler(error, req, res) {
+  if (error instanceof ValidationError) {
+    console.warn("> [WARNING] onErrorHandler:", {
+      method: req.method,
+      url: req.url,
+      message: error.message,
+    });
+    return res.status(error.statusCode).json(error);
+  }
   const publicErrorObject = new InternalServerError({
     statusCode: error.statusCode,
     cause: error,
