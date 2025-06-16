@@ -2,10 +2,11 @@ const {
   MethodNotAllowedError,
   InternalServerError,
   ValidationError,
+  NotFoundError,
 } = require("infra/errors");
 
 function onErrorHandler(error, req, res) {
-  if (error instanceof ValidationError) {
+  if (error instanceof ValidationError || error instanceof NotFoundError) {
     console.warn("> [WARNING] onErrorHandler:", {
       method: req.method,
       url: req.url,
@@ -13,6 +14,7 @@ function onErrorHandler(error, req, res) {
     });
     return res.status(error.statusCode).json(error);
   }
+
   const publicErrorObject = new InternalServerError({
     statusCode: error.statusCode,
     cause: error,
