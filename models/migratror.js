@@ -6,7 +6,8 @@ import { ServiceError } from "infra/errors";
 const defaultMigrationOptions = {
   direction: process.env.MIGRATION_DIRECTION || "up",
   migrationsTable: process.env.MIGRATIONS_TABLE || "pgmigrations",
-  dir: resolve(process.env.MIGRATIONS_DIR || "infra/migrations"),
+  dir: resolve("infra", "migrations"),
+  log: () => {},
 };
 
 async function runMigrations({ dryRun } = { dryRun: true }) {
