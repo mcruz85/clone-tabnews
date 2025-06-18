@@ -1,4 +1,5 @@
 import database from "infra/database.js";
+import passwordModel from "models/password.js";
 import { NotFoundError, ValidationError } from "infra/errors.js";
 
 function isValidEmail(email) {
@@ -6,6 +7,7 @@ function isValidEmail(email) {
 }
 
 async function create({ username, email, password }) {
+  console.log("Creating user with username:", username, "and email:", email);
   if (!username || !email || !password) {
     throw new ValidationError({
       message: "Missing required fields",
@@ -35,7 +37,9 @@ async function create({ username, email, password }) {
     VALUES ($1, $2, $3)
     RETURNING id, username, email, created_at, updated_at
   `;
-  const values = [username, email, password];
+
+  const hashPassword = await passwordModel.hash(password);
+  const values = [username, email, hashPassword];
   const result = await database.query({ text: insertSql, values });
 
   return result.rows[0];

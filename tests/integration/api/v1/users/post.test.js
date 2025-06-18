@@ -1,5 +1,7 @@
 import orchestrator from "tests/orchestrator.js";
 import { version as uuidVersion } from "uuid";
+import database from "infra/database";
+import password from "models/password";
 
 beforeAll(async () => {
   await orchestrator.waitForAppToStart();
@@ -39,6 +41,26 @@ describe("POST /api/v1/users", () => {
       expect(uuidVersion(responseBody.id)).toBe(4);
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+
+      const resultSet = await database.query({
+        text: "SELECT * FROM users WHERE id=$1 LIMIT 1",
+        values: [responseBody.id],
+      });
+
+      const userInDatabase = resultSet.rows[0];
+
+      const correctPasswordMatch = await password.compare(
+        "P@ssw0rd",
+        userInDatabase.password,
+      );
+
+      const incorrectPasswordMatch = await password.compare(
+        "wrongpassword",
+        userInDatabase.password,
+      );
+
+      expect(correctPasswordMatch).toBe(true);
+      expect(incorrectPasswordMatch).toBe(false);
     });
 
     test("With duplicate 'email'", async () => {
