@@ -71,27 +71,105 @@ async function validateUniqueUsername(username) {
   }
 }
 
-async function findOneByUsername(username) {
-  const userFound = await runSelectQuery(username);
-  return userFound;
+function findOneByUsername(username) {
+  return findUserByUsername(username, [
+    "id",
+    "username",
+    "email",
+    "created_at",
+    "updated_at",
+  ]);
+}
 
-  async function runSelectQuery(username) {
-    const sql = `
-      SELECT id, username, email, created_at, updated_at
-      FROM users
-      WHERE LOWER(username) = LOWER($1)
-      LIMIT 1
-    `;
-    const result = await database.query({ text: sql, values: [username] });
+function findOneByUsernameForUpdate(username) {
+  return findUserByUsername(username, [
+    "id",
+    "username",
+    "email",
+    "password",
+    "created_at",
+    "updated_at",
+  ]);
+}
 
-    if (result.rowCount === 0) {
-      throw new NotFoundError({
-        message: "User not found",
-        action: "Please check the username and try again",
-        status_code: 404,
-      });
+async function findUserByUsername(username, fields) {
+  if (!username || typeof username !== "string") {
+    throw new Error("Invalid username");
+  }
+
+  const sql = `
+    SELECT ${fields.join(", ")}
+    FROM users
+    WHERE LOWER(username) = LOWER($1)
+    LIMIT 1
+  `;
+
+  const result = await database.query({ text: sql, values: [username] });
+
+  if (result.rowCount === 0) {
+    throw new NotFoundError({
+      message: `User '${username}' not found`,
+      action: "Please check the username and try again",
+      status_code: 404,
+    });
+  }
+
+  return result.rows[0];
+}
+
+async function updateByUsername(username, userInputValues) {
+  const existingUser = await findOneByUsernameForUpdate(username);
+
+  if ("username" in userInputValues) {
+    const newUsername = userInputValues.username.trim();
+    if (newUsername.toLowerCase() !== existingUser.username.toLowerCase()) {
+      await validateUniqueUsername(newUsername);
     }
+  }
 
+  if ("email" in userInputValues) {
+    const newEmail = userInputValues.email.trim().toLowerCase();
+    if (newEmail.toLowerCase() !== existingUser.email.toLowerCase()) {
+      if (!isValidEmail(newEmail)) {
+        throw new ValidationError({
+          message: "Invalid email format",
+          action: "Please provide a valid email address",
+        });
+      }
+      await validateUniqueEmail(newEmail);
+    }
+  }
+
+  if ("password" in userInputValues) {
+    userInputValues.password = await passwordModel.hash(
+      userInputValues.password,
+    );
+  }
+
+  const userWithNewValues = {
+    ...existingUser,
+    ...userInputValues,
+  };
+
+  return await runUpdateQuery(userWithNewValues);
+
+  async function runUpdateQuery(userWithNewValues) {
+    const sql = `
+      UPDATE users
+      SET username = $1,
+          email = $2,
+          password = $3,
+          updated_at = timezone('utc', now())
+      WHERE id = $4
+      RETURNING id, username, email, created_at, updated_at
+    `;
+    const values = [
+      userWithNewValues.username,
+      userWithNewValues.email,
+      userWithNewValues.password,
+      existingUser.id,
+    ];
+    const result = await database.query({ text: sql, values });
     return result.rows[0];
   }
 }
@@ -99,6 +177,7 @@ async function findOneByUsername(username) {
 const user = {
   create,
   findOneByUsername,
+  updateByUsername,
 };
 
 export default user;
