@@ -1,6 +1,5 @@
 import orchestrator from "tests/orchestrator.js";
 import { version as uuidVersion } from "uuid";
-import { createUser } from "tests/helpers/user.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAppToStart();
@@ -11,12 +10,9 @@ beforeAll(async () => {
 describe("GET /api/v1/users/[username]", () => {
   describe("Anonymous user", () => {
     test("With exact case match", async () => {
-      const response = await createUser({
+      const createdUser = await orchestrator.createUser({
         username: "MesmoCase",
-        email: "mesmo.case@mail.com",
-        password: "P@ssw0rd",
       });
-      expect(response.status).toBe(201);
 
       const response2 = await fetch(
         "http://localhost:3020/api/v1/users/MesmoCase",
@@ -29,7 +25,7 @@ describe("GET /api/v1/users/[username]", () => {
       expect(response2Body).toEqual({
         id: response2Body.id,
         username: "MesmoCase",
-        email: "mesmo.case@mail.com",
+        email: createdUser.email,
         created_at: response2Body.created_at,
         updated_at: response2Body.updated_at,
       });
@@ -40,12 +36,9 @@ describe("GET /api/v1/users/[username]", () => {
     });
 
     test("With case missmatch", async () => {
-      const response = await createUser({
+      const createdUser = await orchestrator.createUser({
         username: "CaseInsensitive",
-        email: "case.insensitive@mail.com",
-        password: "P@ssw0rd",
       });
-      expect(response.status).toBe(201);
 
       const response2 = await fetch(
         "http://localhost:3020/api/v1/users/caseinsensitive",
@@ -58,7 +51,7 @@ describe("GET /api/v1/users/[username]", () => {
       expect(response2Body).toEqual({
         id: response2Body.id,
         username: "CaseInsensitive",
-        email: "case.insensitive@mail.com",
+        email: createdUser.email,
         created_at: response2Body.created_at,
         updated_at: response2Body.updated_at,
       });
