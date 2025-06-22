@@ -117,6 +117,27 @@ async function findUserByUsername(username, fields) {
   return result.rows[0];
 }
 
+async function findOneByEmail(email) {
+  const sql = `
+    SELECT id, username, email, password, created_at, updated_at
+    FROM users
+    WHERE LOWER(email) = LOWER($1)
+    LIMIT 1
+  `;
+
+  const result = await database.query({ text: sql, values: [email] });
+
+  if (result.rowCount === 0) {
+    throw new NotFoundError({
+      message: `Email '${email}' not found`,
+      action: "Please check the username and try again",
+      status_code: 404,
+    });
+  }
+
+  return result.rows[0];
+}
+
 async function updateByUsername(username, userInputValues) {
   const existingUser = await findOneByUsernameForUpdate(username);
 
@@ -178,6 +199,7 @@ const user = {
   create,
   findOneByUsername,
   updateByUsername,
+  findOneByEmail,
 };
 
 export default user;
