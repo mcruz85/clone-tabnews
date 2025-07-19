@@ -20,7 +20,7 @@ export class InternalServerError extends Error {
 
 export class ServiceError extends Error {
   constructor({ cause, message }) {
-    super(message || "Service unavalibe ", {
+    super(message || "Service unavailable", {
       cause,
     });
     this.name = "ServiceError";
@@ -64,7 +64,7 @@ export class NotFoundError extends Error {
       cause,
     });
     this.name = "NotFoundError";
-    this.action = action || "Please check the paramenter and try again";
+    this.action = action || "Please check the parameter and try again";
     this.statusCode = 404;
   }
 
