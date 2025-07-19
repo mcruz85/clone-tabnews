@@ -39,7 +39,7 @@ async function create({ username, email, password }) {
   `;
 
   const hashPassword = await passwordModel.hash(password);
-  const values = [username, email, hashPassword];
+  const values = [normalizedUsername, normalizedEmail, hashPassword];
   const result = await database.query({ text: insertSql, values });
 
   return result.rows[0];
