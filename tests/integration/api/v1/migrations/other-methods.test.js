@@ -12,19 +12,20 @@ async function cleanDatabase() {
 
 async function testMethod(method) {
   const response = await fetch("http://localhost:3020/api/v1/migrations", {
-    method: method,
+    method,
   });
 
   return response.status;
 }
 
 describe("/api/v1/migrations", () => {
-  test("other http methods to /api/v1/migrations should return 405", async () => {
-    const notAllowedMethods = ["PUT", "DELETE", "OPTIONS", "PATCH"];
-    for (const method of notAllowedMethods) {
+  const notAllowedMethods = ["PUT", "DELETE", "OPTIONS", "PATCH"];
+
+  test.each(notAllowedMethods)(
+    "should return 405 when using %s method",
+    async (method) => {
       const status = await testMethod(method);
-      console.log(`Method: ${method}, Status: ${status}`);
       expect(status).toBe(405);
-    }
-  });
+    },
+  );
 });
